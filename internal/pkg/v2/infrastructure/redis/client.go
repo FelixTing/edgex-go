@@ -697,3 +697,15 @@ func (c *Client) AddSubscription(subscription model.Subscription) (model.Subscri
 
 	return addSubscription(conn, subscription)
 }
+
+// AllSubscriptions query the subscriptions with offset and limit
+func (c *Client) AllSubscriptions(offset int, limit int) ([]model.Subscription, errors.EdgeX) {
+	conn := c.Pool.Get()
+	defer conn.Close()
+
+	subscriptions, edgeXerr := allSubscriptions(conn, offset, limit)
+	if edgeXerr != nil {
+		return subscriptions, errors.NewCommonEdgeXWrapper(edgeXerr)
+	}
+	return subscriptions, nil
+}

@@ -7,6 +7,7 @@ package application
 
 import (
 	"context"
+	"github.com/edgexfoundry/go-mod-core-contracts/v2/v2/dtos"
 
 	"github.com/edgexfoundry/edgex-go/internal/pkg/correlation"
 	v2NotificationsContainer "github.com/edgexfoundry/edgex-go/internal/support/notifications/v2/bootstrap/container"
@@ -34,4 +35,18 @@ func AddSubscription(d models.Subscription, ctx context.Context, dic *di.Contain
 		correlation.FromContext(ctx))
 
 	return addedSubscription.Id, nil
+}
+
+// AllSubscriptions query the subscriptions with offset and limit
+func AllSubscriptions(offset, limit int, dic *di.Container) (subscriptions []dtos.Subscription, err errors.EdgeX) {
+	dbClient := v2NotificationsContainer.DBClientFrom(dic.Get)
+	subs, err := dbClient.AllSubscriptions(offset, limit)
+	if err != nil {
+		return subscriptions, errors.NewCommonEdgeXWrapper(err)
+	}
+	subscriptions = make([]dtos.Subscription, len(subs))
+	for i, sub := range subs {
+		subscriptions[i] = dtos.FromSubscriptionModelToDTO(sub)
+	}
+	return subscriptions, nil
 }
