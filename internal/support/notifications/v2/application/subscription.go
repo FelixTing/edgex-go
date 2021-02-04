@@ -15,6 +15,7 @@ import (
 	"github.com/edgexfoundry/go-mod-bootstrap/v2/di"
 
 	"github.com/edgexfoundry/go-mod-core-contracts/v2/errors"
+	"github.com/edgexfoundry/go-mod-core-contracts/v2/v2/dtos"
 	"github.com/edgexfoundry/go-mod-core-contracts/v2/v2/models"
 )
 
@@ -34,4 +35,21 @@ func AddSubscription(d models.Subscription, ctx context.Context, dic *di.Contain
 		correlation.FromContext(ctx))
 
 	return addedSubscription.Id, nil
+}
+
+// SubscriptionsByCategory queries subscriptions with offset, limit, and category
+func SubscriptionsByCategory(offset, limit int, category string, dic *di.Container) (subscriptions []dtos.Subscription, err errors.EdgeX) {
+	if category == "" {
+		return subscriptions, errors.NewCommonEdgeX(errors.KindContractInvalid, "category is empty", nil)
+	}
+	dbClient := v2NotificationsContainer.DBClientFrom(dic.Get)
+	subscriptionModels, err := dbClient.SubscriptionsByCategory(offset, limit, category)
+	if err != nil {
+		return subscriptions, errors.NewCommonEdgeXWrapper(err)
+	}
+	subscriptions = make([]dtos.Subscription, len(subscriptionModels))
+	for i, s := range subscriptionModels {
+		subscriptions[i] = dtos.FromSubscriptionModelToDTO(s)
+	}
+	return subscriptions, nil
 }

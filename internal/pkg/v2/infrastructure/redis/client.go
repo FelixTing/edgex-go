@@ -697,3 +697,16 @@ func (c *Client) AddSubscription(subscription model.Subscription) (model.Subscri
 
 	return addSubscription(conn, subscription)
 }
+
+// SubscriptionsByCategory queries subscriptions by offset, limit and category
+func (c *Client) SubscriptionsByCategory(offset int, limit int, category string) (subscriptions []model.Subscription, edgeXerr errors.EdgeX) {
+	conn := c.Pool.Get()
+	defer conn.Close()
+
+	subscriptions, edgeXerr = subscriptionsByCategory(conn, offset, limit, category)
+	if edgeXerr != nil {
+		return subscriptions, errors.NewCommonEdgeX(errors.Kind(edgeXerr),
+			fmt.Sprintf("fail to query subscriptions by offset %d, limit %d and category %s", offset, limit, category), edgeXerr)
+	}
+	return subscriptions, nil
+}
