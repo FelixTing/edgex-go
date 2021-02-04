@@ -15,4 +15,5 @@ type DBClient interface {
 
 	AddSubscription(e models.Subscription) (models.Subscription, errors.EdgeX)
 	AllSubscriptions(offset int, limit int) ([]models.Subscription, errors.EdgeX)
+	SubscriptionsByReceiver(offset, limit int, receiver string) ([]models.Subscription, errors.EdgeX)
 }
