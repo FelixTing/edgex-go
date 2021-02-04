@@ -50,3 +50,20 @@ func AllSubscriptions(offset, limit int, dic *di.Container) (subscriptions []dto
 	}
 	return subscriptions, nil
 }
+
+// SubscriptionsByLabel queries subscriptions with offset, limit, and label
+func SubscriptionsByLabel(offset, limit int, label string, dic *di.Container) (subscriptions []dtos.Subscription, err errors.EdgeX) {
+	if label == "" {
+		return subscriptions, errors.NewCommonEdgeX(errors.KindContractInvalid, "label is empty", nil)
+	}
+	dbClient := v2NotificationsContainer.DBClientFrom(dic.Get)
+	subscriptionModels, err := dbClient.SubscriptionsByLabel(offset, limit, label)
+	if err != nil {
+		return subscriptions, errors.NewCommonEdgeXWrapper(err)
+	}
+	subscriptions = make([]dtos.Subscription, len(subscriptionModels))
+	for i, s := range subscriptionModels {
+		subscriptions[i] = dtos.FromSubscriptionModelToDTO(s)
+	}
+	return subscriptions, nil
+}
