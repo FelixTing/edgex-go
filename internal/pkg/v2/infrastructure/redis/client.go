@@ -724,3 +724,16 @@ func (c *Client) SubscriptionsByCategory(offset int, limit int, category string)
 	}
 	return subscriptions, nil
 }
+
+// SubscriptionByName queries subscription by name
+func (c *Client) SubscriptionByName(name string) (subscription model.Subscription, edgeXerr errors.EdgeX) {
+	conn := c.Pool.Get()
+	defer conn.Close()
+
+	subscription, edgeXerr = subscriptionByName(conn, name)
+	if edgeXerr != nil {
+		return subscription, errors.NewCommonEdgeX(errors.Kind(edgeXerr),
+			fmt.Sprintf("fail to query subscription by name %s", name), edgeXerr)
+	}
+	return subscription, nil
+}
