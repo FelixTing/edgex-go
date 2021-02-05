@@ -18,4 +18,5 @@ type DBClient interface {
 	SubscriptionsByCategory(offset, limit int, category string) ([]models.Subscription, errors.EdgeX)
 	SubscriptionsByLabel(offset, limit int, label string) ([]models.Subscription, errors.EdgeX)
 	SubscriptionByName(name string) (models.Subscription, errors.EdgeX)
+	DeleteSubscriptionByName(name string) errors.EdgeX
 }
